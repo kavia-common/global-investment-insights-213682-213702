@@ -2,51 +2,32 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHash
 
 from src.core.config import get_settings
 
 settings = get_settings()
 
-# Configure hashing via settings; default scheme should be bcrypt
-pwd_context = CryptContext(schemes=[settings.PASSWORD_HASH_SCHEME], deprecated="auto")
-
-_MAX_BCRYPT_BYTES = 72
-
-
-def _bcrypt_safe_truncate(password: str) -> str:
-    """
-    Truncate the password to bcrypt's effective input limit of 72 bytes.
-
-    This ensures consistent hashing/verification even when Unicode characters,
-    which may expand to multiple bytes in UTF-8, are used. We truncate on a byte
-    boundary then decode ignoring any broken trailing code point.
-    """
-    if password is None:
-        return ""
-    data = password.encode("utf-8")
-    if len(data) <= _MAX_BCRYPT_BYTES:
-        return password
-    truncated = data[:_MAX_BCRYPT_BYTES]
-    return truncated.decode("utf-8", errors="ignore")
+# Initialize a single Argon2 PasswordHasher instance.
+# Defaults are strong and suitable for most applications; tune if needed via env in future.
+_argon2_hasher = PasswordHasher()
 
 
 # PUBLIC_INTERFACE
 def get_password_hash(password: str) -> str:
-    """Return a secure password hash using passlib. Applies 72-byte truncation for bcrypt."""
-    # Always truncate to 72 bytes for bcrypt compatibility to avoid accidental
-    # silent truncation differences across bcrypt implementations/versions.
-    safe = _bcrypt_safe_truncate(password)
-    return pwd_context.hash(safe)
+    """Return a secure password hash using Argon2id."""
+    # Argon2 has no 72-byte limit; do not truncate.
+    return _argon2_hasher.hash(password)
 
 
 # PUBLIC_INTERFACE
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plaintext password against a hash. Applies 72-byte truncation for bcrypt."""
-    # Passlib's bcrypt will ignore bytes beyond 72; we pre-truncate to ensure
-    # deterministic behavior across environments and test stability.
-    safe = _bcrypt_safe_truncate(plain_password)
-    return pwd_context.verify(safe, hashed_password)
+    """Verify a plaintext password against an Argon2 hash."""
+    try:
+        return _argon2_hasher.verify(hashed_password, plain_password)
+    except (VerifyMismatchError, VerificationError, InvalidHash):
+        return False
 
 
 # PUBLIC_INTERFACE

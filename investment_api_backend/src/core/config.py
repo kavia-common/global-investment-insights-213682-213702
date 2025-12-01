@@ -22,7 +22,7 @@ class Settings(BaseModel):
     SECRET_KEY: str = Field(default="change-me", description="JWT signing secret")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24, description="Access token expiry in minutes")
     ALGORITHM: str = Field(default="HS256", description="JWT signing algorithm")
-    PASSWORD_HASH_SCHEME: str = Field(default="bcrypt", description="Password hashing scheme")
+    PASSWORD_HASH_SCHEME: str = Field(default="argon2", description="Password hashing scheme (deprecated setting; argon2 is enforced)")
 
     # CORS
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = Field(default_factory=list, description="Allowed CORS origins")
@@ -97,7 +97,7 @@ def get_settings() -> Settings:
         SECRET_KEY=os.getenv("SECRET_KEY", "change-me"),
         ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 24))),
         ALGORITHM=os.getenv("ALGORITHM", "HS256"),
-        PASSWORD_HASH_SCHEME=os.getenv("PASSWORD_HASH_SCHEME", "bcrypt"),
+        PASSWORD_HASH_SCHEME=os.getenv("PASSWORD_HASH_SCHEME", "argon2"),
         BACKEND_CORS_ORIGINS=[],  # parsed in validator from BACKEND_CORS_ORIGINS env
         CORS_ALLOW_CREDENTIALS=os.getenv("CORS_ALLOW_CREDENTIALS", "true").lower() == "true",
         CORS_ALLOW_METHODS=["*"],
