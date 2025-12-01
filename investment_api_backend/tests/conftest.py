@@ -3,15 +3,13 @@ import sys
 from typing import Generator
 
 # -----------------------------------------------------------------------------
-# Ensure 'src' is importable in all environments BEFORE any other imports.
-# We resolve BASE_DIR as the repository's backend container root where tests live.
-# This is a safeguard even if pytest.ini sets pythonpath=src.
+# Ensure backend root is on sys.path BEFORE any other imports.
+# Compute BASE_DIR as the parent of tests/ (i.e., investment_api_backend/)
+# so that 'src' can be imported as a package without relying on external PYTHONPATH.
 # -----------------------------------------------------------------------------
-CURRENT_FILE_DIR = os.path.dirname(__file__)
-BASE_DIR = os.path.dirname(CURRENT_FILE_DIR)  # investment_api_backend/
-SRC_DIR = os.path.join(BASE_DIR, "src")
-if os.path.isdir(SRC_DIR) and SRC_DIR not in sys.path:
-    sys.path.insert(0, SRC_DIR)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
