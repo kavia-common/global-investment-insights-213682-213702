@@ -24,7 +24,7 @@ class UserCreate(UserBase):
 
 class UserLogin(BaseModel):
     email: EmailStr = Field(..., description="User email for login")
-    password: str = Field(..., min_length=6, description="Password for login")
+    password: str = Field(..., description="Password for login")
 
 
 class UserPublic(UserBase):
