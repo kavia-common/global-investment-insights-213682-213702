@@ -15,7 +15,6 @@ if SRC_DIR not in sys.path:
 
 from src.api.main import app  # noqa: E402
 from src.db.session import Base, get_db  # noqa: E402
-from src.api.routers.auth import get_current_user  # noqa: E402
 from src.db import models  # noqa: E402
 
 # Use a SQLite DB for tests to avoid external dependency
