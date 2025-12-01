@@ -34,6 +34,8 @@ def _bcrypt_safe_truncate(password: str) -> str:
 # PUBLIC_INTERFACE
 def get_password_hash(password: str) -> str:
     """Return a secure password hash using passlib. Applies 72-byte truncation for bcrypt."""
+    # Always truncate to 72 bytes for bcrypt compatibility to avoid accidental
+    # silent truncation differences across bcrypt implementations/versions.
     safe = _bcrypt_safe_truncate(password)
     return pwd_context.hash(safe)
 
@@ -41,6 +43,8 @@ def get_password_hash(password: str) -> str:
 # PUBLIC_INTERFACE
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plaintext password against a hash. Applies 72-byte truncation for bcrypt."""
+    # Passlib's bcrypt will ignore bytes beyond 72; we pre-truncate to ensure
+    # deterministic behavior across environments and test stability.
     safe = _bcrypt_safe_truncate(plain_password)
     return pwd_context.verify(safe, hashed_password)
 
