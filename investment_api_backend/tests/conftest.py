@@ -2,16 +2,21 @@ import os
 import sys
 from typing import Generator
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-# Ensure src is importable
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+# -----------------------------------------------------------------------------
+# Ensure 'src' is importable in all environments BEFORE any other imports.
+# We resolve BASE_DIR as the repository's backend container root where tests live.
+# This is a safeguard even if pytest.ini sets pythonpath=src.
+# -----------------------------------------------------------------------------
+CURRENT_FILE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(CURRENT_FILE_DIR)  # investment_api_backend/
 SRC_DIR = os.path.join(BASE_DIR, "src")
-if SRC_DIR not in sys.path:
+if os.path.isdir(SRC_DIR) and SRC_DIR not in sys.path:
     sys.path.insert(0, SRC_DIR)
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy.orm import sessionmaker  # noqa: E402
 
 from src.api.main import app  # noqa: E402
 from src.db.session import Base, get_db  # noqa: E402

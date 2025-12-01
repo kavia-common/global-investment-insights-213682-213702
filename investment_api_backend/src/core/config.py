@@ -27,7 +27,13 @@ class Settings(BaseModel):
     SECRET_KEY: str = Field(default="change-me", description="JWT signing secret")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24, description="Access token expiry in minutes")
     ALGORITHM: str = Field(default="HS256", description="JWT signing algorithm")
-    PASSWORD_HASH_SCHEME: str = Field(default="argon2", description="Password hashing scheme (deprecated setting; argon2 is enforced)")
+    PASSWORD_HASH_SCHEME: str = Field(
+        default="argon2",
+        description=(
+            "Password hashing scheme (deprecated setting; "
+            "argon2 is enforced)"
+        ),
+    )
 
     # CORS
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = Field(default_factory=list, description="Allowed CORS origins")

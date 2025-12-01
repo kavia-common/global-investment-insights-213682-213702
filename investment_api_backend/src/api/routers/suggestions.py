@@ -40,7 +40,11 @@ def get_suggestions(db: Session = Depends(get_db), current_user=Depends(get_curr
     summary="Generate and save a suggestion",
     description="Generate a mock suggestion using market data and save it.",
 )
-def generate_suggestion(payload: SuggestionCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def generate_suggestion(
+    payload: SuggestionCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     quote = market_data_service.get_quote(
         payload.symbol,
         payload.market,
