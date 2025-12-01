@@ -11,16 +11,37 @@ settings = get_settings()
 pwd_context = CryptContext(schemes=[settings.PASSWORD_HASH_SCHEME], deprecated="auto")
 
 
+def _bcrypt_safe_truncate(password: str) -> str:
+    """
+    Truncate the password to 72 bytes to align with bcrypt's effective input limit.
+    This ensures consistent hashing/verification even if Unicode characters expand
+    to more than one byte in UTF-8.
+    """
+    if password is None:
+        return ""
+    password_bytes = password.encode("utf-8")
+    truncated = password_bytes[:72]
+    return truncated.decode("utf-8", errors="ignore")
+
+
 # PUBLIC_INTERFACE
 def get_password_hash(password: str) -> str:
-    """Return a secure password hash using passlib."""
-    return pwd_context.hash(password)
+    """Return a secure password hash using passlib.
+
+    Note: We truncate to 72 bytes prior to hashing to match bcrypt's input limit.
+    """
+    safe = _bcrypt_safe_truncate(password)
+    return pwd_context.hash(safe)
 
 
 # PUBLIC_INTERFACE
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plaintext password against a hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a plaintext password against a hash.
+
+    Note: We truncate to 72 bytes prior to verification to match hashing behavior.
+    """
+    safe = _bcrypt_safe_truncate(plain_password)
+    return pwd_context.verify(safe, hashed_password)
 
 
 # PUBLIC_INTERFACE
