@@ -8,38 +8,39 @@ from src.core.config import get_settings
 
 settings = get_settings()
 
+# Configure hashing via settings; default scheme should be bcrypt
 pwd_context = CryptContext(schemes=[settings.PASSWORD_HASH_SCHEME], deprecated="auto")
+
+_MAX_BCRYPT_BYTES = 72
 
 
 def _bcrypt_safe_truncate(password: str) -> str:
     """
-    Truncate the password to 72 bytes to align with bcrypt's effective input limit.
-    This ensures consistent hashing/verification even if Unicode characters expand
-    to more than one byte in UTF-8.
+    Truncate the password to bcrypt's effective input limit of 72 bytes.
+
+    This ensures consistent hashing/verification even when Unicode characters,
+    which may expand to multiple bytes in UTF-8, are used. We truncate on a byte
+    boundary then decode ignoring any broken trailing code point.
     """
     if password is None:
         return ""
-    password_bytes = password.encode("utf-8")
-    truncated = password_bytes[:72]
+    data = password.encode("utf-8")
+    if len(data) <= _MAX_BCRYPT_BYTES:
+        return password
+    truncated = data[:_MAX_BCRYPT_BYTES]
     return truncated.decode("utf-8", errors="ignore")
 
 
 # PUBLIC_INTERFACE
 def get_password_hash(password: str) -> str:
-    """Return a secure password hash using passlib.
-
-    Note: We truncate to 72 bytes prior to hashing to match bcrypt's input limit.
-    """
+    """Return a secure password hash using passlib. Applies 72-byte truncation for bcrypt."""
     safe = _bcrypt_safe_truncate(password)
     return pwd_context.hash(safe)
 
 
 # PUBLIC_INTERFACE
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plaintext password against a hash.
-
-    Note: We truncate to 72 bytes prior to verification to match hashing behavior.
-    """
+    """Verify a plaintext password against a hash. Applies 72-byte truncation for bcrypt."""
     safe = _bcrypt_safe_truncate(plain_password)
     return pwd_context.verify(safe, hashed_password)
 
