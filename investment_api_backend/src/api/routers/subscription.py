@@ -15,6 +15,15 @@ router = APIRouter(prefix="/subscription", tags=["Subscription"])
     summary="Set subscription",
     description="Create or update the user's subscription.",
 )
-def update_subscription(payload: SubscriptionUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def update_subscription(
+    payload: SubscriptionUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     sub = set_subscription(db, user_id=current_user.id, is_active=payload.is_active, plan=payload.plan)
-    return SubscriptionPublic(id=sub.id, user_id=sub.user_id, is_active=sub.is_active, plan=sub.plan)
+    return SubscriptionPublic(
+        id=sub.id,
+        user_id=sub.user_id,
+        is_active=sub.is_active,
+        plan=sub.plan,
+    )

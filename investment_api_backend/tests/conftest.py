@@ -84,9 +84,17 @@ def auth_headers_token(client) -> dict:
     # ensure signup ok; if already exists ignore
     resp = client.post("/auth/signup", json=signup_payload)
     if resp.status_code not in (200, 400):
-        raise AssertionError(f"Unexpected signup status: {resp.status_code}, body={resp.text}")
+        raise AssertionError(
+            f"Unexpected signup status: {resp.status_code}, body={resp.text}"
+        )
     # Try login
-    login_resp = client.post("/auth/login", json={"email": signup_payload["email"], "password": signup_payload["password"]})
+    login_resp = client.post(
+        "/auth/login",
+        json={
+            "email": signup_payload["email"],
+            "password": signup_payload["password"],
+        },
+    )
     assert login_resp.status_code == 200, login_resp.text
     data = login_resp.json()
     token = data.get("access_token") or data.get("token")

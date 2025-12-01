@@ -7,7 +7,13 @@ def test_list_and_generate_suggestions(client, auth_headers_token):
     assert len(items) == 0
 
     # Create suggestion
-    create_payload = {"symbol": "AAPL", "action": "buy", "rationale": "Test rationale", "target_price": 200.0, "market": "US"}
+    create_payload = {
+        "symbol": "AAPL",
+        "action": "buy",
+        "rationale": "Test rationale",
+        "target_price": 200.0,
+        "market": "US",
+    }
     create_resp = client.post("/suggestions", json=create_payload, headers=auth_headers_token)
     assert create_resp.status_code == 200, create_resp.text
     s = create_resp.json()

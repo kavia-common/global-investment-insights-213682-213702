@@ -18,8 +18,9 @@ router = APIRouter(prefix="/suggestions", tags=["Suggestions"])
 )
 def get_suggestions(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     items = list_suggestions(db, current_user.id)
-    return SuggestionList(
-        items=[
+    result_items = []
+    for s in items:
+        result_items.append(
             SuggestionPublic(
                 id=s.id,
                 user_id=s.user_id,
@@ -29,9 +30,8 @@ def get_suggestions(db: Session = Depends(get_db), current_user=Depends(get_curr
                 target_price=s.target_price,
                 market=s.market,
             )
-            for s in items
-        ]
-    )
+        )
+    return SuggestionList(items=result_items)
 
 
 @router.post(
@@ -41,9 +41,15 @@ def get_suggestions(db: Session = Depends(get_db), current_user=Depends(get_curr
     description="Generate a mock suggestion using market data and save it.",
 )
 def generate_suggestion(payload: SuggestionCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    quote = market_data_service.get_quote(payload.symbol, payload.market)
+    quote = market_data_service.get_quote(
+        payload.symbol,
+        payload.market,
+    )
     action = payload.action
-    rationale = payload.rationale or f"Based on recent price {quote['price']}"
+    rationale = (
+        payload.rationale
+        or f"Based on recent price {quote['price']}"
+    )
     s = create_suggestion(
         db=db,
         user_id=current_user.id,

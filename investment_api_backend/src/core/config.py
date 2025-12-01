@@ -13,8 +13,13 @@ class Settings(BaseModel):
     """Application settings loaded from environment variables via .env."""
     APP_NAME: str = Field(default="Investment API", description="Application Name")
     APP_DESCRIPTION: str = Field(
-        default="Backend API for investment analysis, integrations, auth, onboarding, portfolio, and compliance.",
-        description="Application description for OpenAPI metadata",
+        default=(
+            "Backend API for investment analysis, integrations, auth, onboarding, "
+            "portfolio, and compliance."
+        ),
+        description=(
+            "Application description for OpenAPI metadata"
+        ),
     )
     APP_VERSION: str = Field(default="0.1.0", description="Application Version")
 
@@ -91,7 +96,10 @@ def get_settings() -> Settings:
         APP_NAME=os.getenv("APP_NAME", "Investment API"),
         APP_DESCRIPTION=os.getenv(
             "APP_DESCRIPTION",
-            "Backend API for investment analysis, integrations, auth, onboarding, portfolio, and compliance.",
+            (
+                "Backend API for investment analysis, integrations, auth, onboarding, "
+                "portfolio, and compliance."
+            ),
         ),
         APP_VERSION=os.getenv("APP_VERSION", "0.1.0"),
         SECRET_KEY=os.getenv("SECRET_KEY", "change-me"),

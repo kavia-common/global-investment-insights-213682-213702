@@ -69,7 +69,10 @@ def health_check():
 @app.get(
     "/websocket-usage",
     summary="WebSocket Usage",
-    description="This API currently does not expose WebSocket endpoints. In future versions, real-time updates may be provided.",
+    description=(
+        "This API currently does not expose WebSocket endpoints. "
+        "In future versions, real-time updates may be provided."
+    ),
     tags=["Authentication"],
 )
 def websocket_usage():

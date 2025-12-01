@@ -1,6 +1,13 @@
 def test_signup_and_login_flow(client):
     # Signup
-    resp = client.post("/auth/signup", json={"email": "user1@example.com", "password": "passw0rd", "full_name": "User One"})
+    resp = client.post(
+        "/auth/signup",
+        json={
+            "email": "user1@example.com",
+            "password": "passw0rd",
+            "full_name": "User One",
+        },
+    )
     assert resp.status_code == 200, resp.text
     user = resp.json()
     assert user["email"] == "user1@example.com"
@@ -8,7 +15,14 @@ def test_signup_and_login_flow(client):
     assert "id" in user
 
     # Duplicate signup should fail
-    resp2 = client.post("/auth/signup", json={"email": "user1@example.com", "password": "passw0rd", "full_name": "User One"})
+    resp2 = client.post(
+        "/auth/signup",
+        json={
+            "email": "user1@example.com",
+            "password": "passw0rd",
+            "full_name": "User One",
+        },
+    )
     assert resp2.status_code == 400
 
     # Login
